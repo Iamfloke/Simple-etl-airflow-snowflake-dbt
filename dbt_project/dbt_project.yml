@@ -1,0 +1,12 @@
+name: airflow_dbt_etl
+version: '1.0'
+config-version: 2
+profile: airflow_dbt_profile
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["data"]
+macro-paths: ["macros"]
+models:
+  airflow_dbt_etl:
+    +materialized: table

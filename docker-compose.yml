@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      retries: 5
+
+  airflow:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW_CONN_AIRFLOW_DB: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW_CONN_SNOWFLAKE_DEFAULT: '{"conn_type":"snowflake","login":"${SNOWFLAKE_USER}","password":"${SNOWFLAKE_PASSWORD}","schema":"${SNOWFLAKE_SCHEMA}","extra":{"account":"${SNOWFLAKE_ACCOUNT}","database":"${SNOWFLAKE_DATABASE}","warehouse":"${SNOWFLAKE_WAREHOUSE}","role":"${SNOWFLAKE_ROLE}"}}'
+      SNOWFLAKE_ACCOUNT: "${SNOWFLAKE_ACCOUNT}"
+      SNOWFLAKE_USER: "${SNOWFLAKE_USER}"
+      SNOWFLAKE_PASSWORD: "${SNOWFLAKE_PASSWORD}"
+      SNOWFLAKE_ROLE: "${SNOWFLAKE_ROLE}"
+      SNOWFLAKE_DATABASE: "${SNOWFLAKE_DATABASE}"
+      SNOWFLAKE_WAREHOUSE: "${SNOWFLAKE_WAREHOUSE}"
+      SNOWFLAKE_SCHEMA: "${SNOWFLAKE_SCHEMA}"
+      DBT_PROFILES_DIR: /opt/airflow/dbt_project
+      AIRFLOW_UID: "50000"
+    user: "50000:0"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./include:/opt/airflow/include
+      - ./dbt_project:/opt/airflow/dbt_project
+    ports:
+      - "8080:8080"
+    command: bash -c "airflow db migrate || airflow db init; airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true; airflow scheduler & exec airflow webserver"
+
+volumes:
+  postgres_data:

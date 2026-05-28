@@ -1,0 +1,14 @@
+__pycache__/
+logs/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+postgres_data/
+include/*.json
+dbt_project/.user.yml
+dbt_project/dbt_packages/
+dbt_project/logs/
+dbt_project/target/
+plugins/
