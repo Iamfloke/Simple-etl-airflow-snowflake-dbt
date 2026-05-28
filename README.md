@@ -91,3 +91,10 @@ admin / admin
 This is an ELT pipeline. Airflow handles orchestration, Snowflake is the data warehouse, and dbt handles transformation and testing. Raw API data lands in the `RAW` schema, while curated analytics data is built in the `ANALYTICS` schema.
 
 In production, the next improvements would be moving secrets to a managed secrets backend, adding incremental loading, improving error handling, and managing Snowflake objects with migrations or infrastructure-as-code.
+
+## Screenshot
+
+![Project Screenshot](./images/airflow.png)
+![Project Screenshot](./images/API.png)
+![Project Screenshot](./images/raw.png)
+![Project Screenshot](./images/analytic.png)
